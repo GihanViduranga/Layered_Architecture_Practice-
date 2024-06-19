@@ -6,18 +6,21 @@ import com.example.layeredarchitecture.model.OrderDTO;
 
 import java.sql.SQLException;
 
-public class OrderBoImpl {
+public class OrderBoImpl implements OrderBo {
     OrderDAO orderDAO = new OrderDAOImpl();
 
     public OrderBoImpl() throws SQLException, ClassNotFoundException {
     }
 
+    @Override
     public boolean Save(OrderDTO orderDTO) throws SQLException, ClassNotFoundException{
         return orderDAO.Save(orderDTO);
     }
+    @Override
     public boolean Exists(String orderId) throws SQLException, ClassNotFoundException{
         return orderDAO.Exists(orderId);
     }
+    @Override
     public String GenarateNextId() throws SQLException, ClassNotFoundException{
         return orderDAO.GenarateNextId();
     }

@@ -1,6 +1,6 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.bo.OrderDetailBoImpl;
+import com.example.layeredarchitecture.bo.*;
 import com.example.layeredarchitecture.dao.custom.CustomerDAO;
 import com.example.layeredarchitecture.dao.custom.Impl.CustomerDAOImpl;
 import com.example.layeredarchitecture.dao.custom.Impl.ItemDAOImpl;
@@ -60,10 +60,10 @@ public class PlaceOrderFormController {
     public Label lblTotal;
     private String orderId;
 
-    OrderDAO orderDAO = new OrderDAOImpl();
-    CustomerDAO customerDAO = new CustomerDAOImpl();
-    ItemDAO itemDAO = new ItemDAOImpl();
-    OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl();
+    OrderBo orderBo = new OrderBoImpl();
+    CustomerBo customerBo = new CustomerBoImpl();
+    ItemBo itemBo = new ItemBoImpl();
+    //OrderDetailDAO orderDetailDAO = new OrderDetailDAOImpl();
     OrderDetailBoImpl orderDetailBo = new OrderDetailBoImpl();
 
     public PlaceOrderFormController() throws SQLException, ClassNotFoundException {
@@ -128,7 +128,7 @@ public class PlaceOrderFormController {
 */
                         /*CustomerDAOImpl customerDAO = new CustomerDAOImpl();*/
 
-                        CustomerDTO customerDTO = customerDAO.Search(newValue + "");
+                        CustomerDTO customerDTO = customerBo.Search(newValue + "");
 
                         txtCustomerName.setText(customerDTO.getName());
                     } catch (SQLException e) {
@@ -163,7 +163,7 @@ public class PlaceOrderFormController {
                     ItemDTO item = new ItemDTO(newItemCode + "", rst.getString("description"), rst.getBigDecimal("unitPrice"), rst.getInt("qtyOnHand"));
 */
                     /*ItemDAOImpl itemDAO = new ItemDAOImpl();*/
-                    ItemDTO item = itemDAO.Search(newItemCode + "");
+                    ItemDTO item = itemBo.Search(newItemCode + "");
 
                     txtDescription.setText(item.getDescription());
                     txtUnitPrice.setText(item.getUnitPrice().setScale(2).toString());
@@ -214,7 +214,7 @@ public class PlaceOrderFormController {
         return pstm.executeQuery().next();*/
 
         /*ItemDAOImpl itemDAO = new ItemDAOImpl();*/
-        return itemDAO.Exists(code);
+        return itemBo.Exists(code);
     }
 
     boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
@@ -224,7 +224,7 @@ public class PlaceOrderFormController {
         return pstm.executeQuery().next();*/
 
         /*CustomerDAOImpl customerDAO = new CustomerDAOImpl();*/
-        return customerDAO.Exists(id);
+        return customerBo.Exists(id);
     }
 
     public String generateNewOrderId() {
@@ -236,7 +236,7 @@ public class PlaceOrderFormController {
             return rst.next() ? String.format("OID-%03d", (Integer.parseInt(rst.getString("oid").replace("OID-", "")) + 1)) : "OID-001";*/
 
             /*OrderDAOImpl orderDAO = new OrderDAOImpl();*/
-            return orderDAO.GenarateNextId();
+            return orderBo.GenarateNextId();
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Failed to generate a new order id").show();
@@ -258,7 +258,7 @@ public class PlaceOrderFormController {
 
             /*CustomerDAOImpl customerDAO = new CustomerDAOImpl();*/
             //customerDAO.loadAllCustomers();
-            ArrayList<CustomerDTO> customers = customerDAO.loadAll();
+            ArrayList<CustomerDTO> customers = customerBo.getAll();
 
             for (CustomerDTO customer : customers) {
                 cmbCustomerId.getItems().add(customer.getId());
@@ -283,7 +283,7 @@ public class PlaceOrderFormController {
 
             /*ItemDAOImpl itemDAO = new ItemDAOImpl();*/
             //itemDAO.GetAllItems();
-            ArrayList<ItemDTO> items = itemDAO.loadAll();
+            ArrayList<ItemDTO> items = itemBo.loadAll();
 
             for (ItemDTO item : items) {
                 cmbItemCode.getItems().add(item.getCode());
@@ -387,7 +387,7 @@ public class PlaceOrderFormController {
         try {
             connection=DBConnection.getDbConnection().getConnection();
 
-            boolean success = orderDAO.Exists(orderId);
+            boolean success = orderBo.Exists(orderId);
             /*if order id already exist*/
             if (success) {
                 return false;
@@ -395,7 +395,7 @@ public class PlaceOrderFormController {
 
             connection.setAutoCommit(false);
 
-            boolean success1 = orderDAO.Save(new OrderDTO(orderId,orderDate,customerId));
+            boolean success1 = orderBo.Save(new OrderDTO(orderId,orderDate,customerId));
             if (!success1) {
                 connection.rollback();
                 connection.setAutoCommit(true);
@@ -403,7 +403,7 @@ public class PlaceOrderFormController {
             }
 
             for (OrderDetailDTO detailDTO : orderDetails){
-                boolean success2 = orderDetailDAO.Save(detailDTO);
+                boolean success2 = orderDetailBo.Save(detailDTO);
                 if (!success2){
                     connection.rollback();
                     connection.setAutoCommit(true);
@@ -412,7 +412,7 @@ public class PlaceOrderFormController {
                 ItemDTO item = findItem(detailDTO.getItemCode());
                 item.setQtyOnHand(item.getQtyOnHand() - detailDTO.getQty());
 
-                boolean success3 = itemDAO.Update(new ItemDTO(item.getCode(), item.getDescription(), item.getUnitPrice(), item.getQtyOnHand()));
+                boolean success3 = itemBo.Update(new ItemDTO(item.getCode(), item.getDescription(), item.getUnitPrice(), item.getQtyOnHand()));
 
                 if (!success3){
                     connection.rollback();
@@ -443,7 +443,7 @@ public class PlaceOrderFormController {
             return new ItemDTO(code, rst.getString("description"), rst.getBigDecimal("unitPrice"), rst.getInt("qtyOnHand"));*/
 
             /*ItemDAOImpl itemDAO = new ItemDAOImpl();*/
-            return itemDAO.Search(code);
+            return itemBo.Search(code);
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find the Item " + code, e);

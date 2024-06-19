@@ -9,9 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class CustomerBoImpl {
+public class CustomerBoImpl implements CustomerBo {
     CustomerDAO customerDAO = new CustomerDAOImpl();
-    public ArrayList<CustomerDTO> getAllCustomers() throws SQLException, ClassNotFoundException {
+    public ArrayList<CustomerDTO> getAll() throws SQLException, ClassNotFoundException {
         return customerDAO.loadAll();
     }
     public boolean Save(CustomerDTO customer) throws SQLException, ClassNotFoundException {

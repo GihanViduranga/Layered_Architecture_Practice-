@@ -1,5 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
+import com.example.layeredarchitecture.bo.ItemBo;
+import com.example.layeredarchitecture.bo.ItemBoImpl;
 import com.example.layeredarchitecture.dao.custom.ItemDAO;
 import com.example.layeredarchitecture.dao.custom.Impl.ItemDAOImpl;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -36,7 +38,8 @@ public class ManageItemsFormController {
     public TableView<ItemTM> tblItems;
     public TextField txtUnitPrice;
     public JFXButton btnAddNewItem;
-    ItemDAO itemDAO = new ItemDAOImpl();
+    //ItemDAO itemDAO = new ItemDAOImpl();
+    ItemBo itemBo = new ItemBoImpl();
 
     public void initialize() {
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
@@ -79,7 +82,7 @@ public class ManageItemsFormController {
                 tblItems.getItems().add(new ItemTM(rst.getString("code"), rst.getString("description"), rst.getBigDecimal("unitPrice"), rst.getInt("qtyOnHand")));
             }*/
            // ItemDAOImpl itemDAO = new ItemDAOImpl();
-            ArrayList<ItemDTO> itemDTOS = itemDAO.loadAll();
+            ArrayList<ItemDTO> itemDTOS = itemBo.loadAll();
 
             for (ItemDTO itemDTO : itemDTOS) {
                 tblItems.getItems().add(new ItemTM(itemDTO.getCode(), itemDTO.getDescription(), itemDTO.getUnitPrice(), itemDTO.getQtyOnHand()));
@@ -146,7 +149,7 @@ public class ManageItemsFormController {
             pstm.executeUpdate();*/
 
            // ItemDAOImpl itemDAO = new ItemDAOImpl();
-            itemDAO.Delete(code);
+            itemBo.Delete(code);
 
             tblItems.getItems().remove(tblItems.getSelectionModel().getSelectedItem());
             tblItems.getSelectionModel().clearSelection();
@@ -195,7 +198,7 @@ public class ManageItemsFormController {
                 pstm.executeUpdate();*/
 
                // ItemDAOImpl itemDAO = new ItemDAOImpl();
-                itemDAO.Save(new ItemDTO(code,description,unitPrice,qtyOnHand));
+                itemBo.Save(new ItemDTO(code,description,unitPrice,qtyOnHand));
 
                 tblItems.getItems().add(new ItemTM(code, description, unitPrice, qtyOnHand));
 
@@ -220,7 +223,7 @@ public class ManageItemsFormController {
                 pstm.executeUpdate();*/
 
                // ItemDAOImpl itemDAO = new ItemDAOImpl();
-                itemDAO.Update(new ItemDTO(code,description,unitPrice,qtyOnHand));
+                itemBo.Update(new ItemDTO(code,description,unitPrice,qtyOnHand));
 
                 ItemTM selectedItem = tblItems.getSelectionModel().getSelectedItem();
                 selectedItem.setDescription(description);
@@ -245,7 +248,7 @@ public class ManageItemsFormController {
         return pstm.executeQuery().next();*/
 
        // ItemDAOImpl itemDAO = new ItemDAOImpl();
-        return itemDAO.Exists(code);
+        return itemBo.Exists(code);
     }
 
 
@@ -262,7 +265,7 @@ public class ManageItemsFormController {
             }*/
 
             //ItemDAOImpl itemDAO = new ItemDAOImpl();
-            return itemDAO.GenarateNextId();
+            return itemBo.GenarateNextId();
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
